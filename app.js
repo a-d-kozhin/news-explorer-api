@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const usersRouter = require('./routes/users').router;
 
 const app = express();
 
@@ -14,6 +15,8 @@ mongoose.connect('mongodb://localhost:27017/newsdb', {
 });
 
 app.use(bodyParser.json());
+
+app.use(usersRouter);
 
 const { PORT = 3000 } = process.env;
 

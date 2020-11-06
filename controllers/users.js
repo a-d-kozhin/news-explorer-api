@@ -1,0 +1,34 @@
+const bcrypt = require('bcryptjs');
+const User = require('../models/user');
+const ConflictError = require('../errors/ConflictError.js');
+const BadRequestError = require('../errors/BadRequestError');
+
+const SALT = 10;
+
+function createUser(req, res, next) {
+  const {
+    email, password, name,
+  } = req.body;
+
+  return bcrypt.hash(password, SALT, (error, hash) => {
+    if (!email || !password) return next(new BadRequestError('Введите валидный email и пароль не менее 2 символов'));
+    return User.findOne({ email })
+      .then((user) => {
+        if (user) return next(new ConflictError('Пользователь с таким email уже есть'));
+        return User.create({
+          name,
+          email,
+          password: hash,
+        })
+          .then(() => res.status(201).send({
+            message: `Пользователь ${email} успешно создан!`,
+            statusCode: 201,
+          }));
+      })
+      .catch(next);
+  });
+}
+
+module.exports = {
+  createUser,
+};
