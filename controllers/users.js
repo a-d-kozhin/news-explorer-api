@@ -4,6 +4,7 @@ const User = require('../models/user');
 const ConflictError = require('../errors/ConflictError.js');
 const BadRequestError = require('../errors/BadRequestError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
+const NotFoundError = require('../errors/NotFoundError');
 
 const SALT = 10;
 
@@ -52,7 +53,17 @@ function login(req, res, next) {
     .catch(next);
 }
 
+function getCurrentUser(req, res, next) {
+  return User.findOne({ _id: req.user._id })
+    .then((user) => {
+      if (!user) return next(new NotFoundError('Нет пользователя с таким id'));
+      return res.status(200).send(user);
+    })
+    .catch(next);
+}
+
 module.exports = {
   createUser,
   login,
+  getCurrentUser,
 };
