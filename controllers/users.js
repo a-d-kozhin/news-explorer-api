@@ -1,7 +1,9 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const ConflictError = require('../errors/ConflictError.js');
 const BadRequestError = require('../errors/BadRequestError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const SALT = 10;
 
@@ -29,6 +31,28 @@ function createUser(req, res, next) {
   });
 }
 
+function login(req, res, next) {
+  const { email, password } = req.body;
+  return User.findOne({ email }).select('+password')
+    .then((profile) => {
+      if (!profile) return next(new UnauthorizedError('Неправильные почта или пароль'));
+      return bcrypt.compare(password, profile.password, (error, isMatched) => {
+        if (!isMatched) {
+          return next(new UnauthorizedError('Неправильные почта или пароль'));
+        }
+        const token = jwt.sign({ _id: profile._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const user = {
+          _id: profile._id,
+          name: profile.name,
+          email: profile.email,
+        };
+        return res.send({ token, user });
+      });
+    })
+    .catch(next);
+}
+
 module.exports = {
   createUser,
+  login,
 };
