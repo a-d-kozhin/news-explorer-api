@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const usersRouter = require('./routes/users').router;
+const articlesRouter = require('./routes/articles').router;
 const NotFoundError = require('./errors/NotFoundError');
 
 const app = express();
@@ -19,14 +20,18 @@ mongoose.connect('mongodb://localhost:27017/newsdb', {
 app.use(bodyParser.json());
 
 app.use(usersRouter);
+app.use(articlesRouter);
 
 const { PORT = 3000 } = process.env;
 
 app.get('*', (req, res, next) => next(new NotFoundError('Запрашиваемый ресурс не найден')));
 
-app.use((err, req, res) => res.status(err.status || 500).send({
-  message: err.message,
-  statusCode: err.status || 500,
-}));
+app.use((err, req, res, next) => {
+  res.status(err.status || 500).send({
+    message: err.message,
+    statusCode: err.status || 500,
+  });
+  next();
+});
 
 app.listen(PORT);
