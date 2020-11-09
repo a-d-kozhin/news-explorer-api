@@ -5,6 +5,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const usersRouter = require('./routes/users').router;
 const articlesRouter = require('./routes/articles').router;
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const NotFoundError = require('./errors/NotFoundError');
 
 const app = express();
@@ -19,8 +20,12 @@ mongoose.connect('mongodb://localhost:27017/newsdb', {
 
 app.use(bodyParser.json());
 
+app.use(requestLogger);
+
 app.use(usersRouter);
 app.use(articlesRouter);
+
+app.use(errorLogger);
 
 const { PORT = 3000 } = process.env;
 
