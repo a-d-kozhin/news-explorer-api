@@ -3,8 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const usersRouter = require('./routes/users').router;
-const articlesRouter = require('./routes/articles').router;
+const { appRouter } = require('./routes/index');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const NotFoundError = require('./errors/NotFoundError');
 
@@ -22,8 +21,7 @@ app.use(bodyParser.json());
 
 app.use(requestLogger);
 
-app.use(usersRouter);
-app.use(articlesRouter);
+app.use(appRouter);
 
 app.use(errorLogger);
 
