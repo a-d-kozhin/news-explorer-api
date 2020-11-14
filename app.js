@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
+const { errors } = require('celebrate');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const { appRouter } = require('./routes/index');
@@ -29,11 +30,12 @@ app.use(requestLogger);
 
 app.use(appRouter);
 
+app.all('*', (req, res, next) => next(new NotFoundError('Запрашиваемый ресурс не найден')));
+
 app.use(errorLogger);
+app.use(errors());
 
 const { PORT = 3000 } = process.env;
-
-app.get('*', (req, res, next) => next(new NotFoundError('Запрашиваемый ресурс не найден')));
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500).send({
