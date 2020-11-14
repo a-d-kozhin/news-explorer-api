@@ -5,6 +5,7 @@ const ConflictError = require('../errors/ConflictError.js');
 const BadRequestError = require('../errors/BadRequestError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 const NotFoundError = require('../errors/NotFoundError');
+const { JWT_SECRET } = require('../utils/environment');
 
 const SALT = 10;
 
@@ -41,7 +42,7 @@ function login(req, res, next) {
         if (!isMatched) {
           return next(new UnauthorizedError('Неправильные почта или пароль'));
         }
-        const token = jwt.sign({ _id: profile._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        const token = jwt.sign({ _id: profile._id }, JWT_SECRET, { expiresIn: '7d' });
         const user = {
           _id: profile._id,
           name: profile.name,

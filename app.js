@@ -9,6 +9,7 @@ const { appRouter } = require('./routes/index');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { rateLimiter } = require('./middlewares/rateLimiter');
 const NotFoundError = require('./errors/NotFoundError');
+const { PORT, DB } = require('./utils/environment');
 
 const app = express();
 
@@ -18,7 +19,7 @@ app.use(cors());
 app.set('trust proxy', 1);
 app.use(rateLimiter);
 
-mongoose.connect('mongodb://localhost:27017/newsdb', {
+mongoose.connect(DB, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
@@ -34,8 +35,6 @@ app.all('*', (req, res, next) => next(new NotFoundError('Запрашиваем�
 
 app.use(errorLogger);
 app.use(errors());
-
-const { PORT = 3000 } = process.env;
 
 app.use((err, req, res, next) => {
   res.status(err.status || 500).send({
