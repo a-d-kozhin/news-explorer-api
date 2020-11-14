@@ -41,9 +41,9 @@ function removeArticle(req, res, next) {
       const isOwner = article.owner.toString() === req.user._id.toString();
 
       if (!isOwner) return next(new ForbiddenError('Нельзя удалять чужие статьи'));
-      return Article.deleteOne(article);
+      return Article.deleteOne(article)
+        .then(() => res.status(200).send({ message: 'Статья удалена' }));
     })
-    .then(() => res.status(200).send({ message: 'Статья удалена' }))
     .catch(next);
 }
 
