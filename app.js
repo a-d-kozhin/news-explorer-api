@@ -14,6 +14,25 @@ const { PORT, DB } = require('./utils/environment');
 const app = express();
 app.use(helmet());
 app.use(cors());
+
+const allowedCors = [
+  'http://news-x.students.nomoreparties.co',
+  'http://www.news-x.students.nomoreparties.co',
+  'https://news-x.students.nomoreparties.co',
+  'https://www.news-x.students.nomoreparties.co',
+  'localhost:3000',
+];
+
+app.use((req, res, next) => {
+  const { origin } = req.headers;
+
+  if (allowedCors.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+
+  next();
+});
+
 app.set('trust proxy', 1);
 app.use(rateLimiter);
 
